@@ -20,50 +20,43 @@ app.use(cors());
 var posts = require('./routes/posts/index');
 var dbData = require('./db.model');
 var mesgData = dbData.mesg;
-var userData = dbData.users;
+// var userData = dbData.users;
 
 app.use('/api/posts', posts);
 var io = require('socket.io')(server);
+let currentUsers = [];
+let currentMessages = [];
+let currentPreviousMessages = [];
+let socket_user_map ={};
 io.on('connection', (socket) => {
   socket.on('user_added', (data) => {
-    prevMsg = [];
-    mesgData.find({}).exec((err, slang) => {
-      if (err) {
-        console.log(err);
-      } else {
-        slang.forEach(element => {
-          var obj = {
-            user: element.user,
-            msg: element.msg,
-          };
-          prevMsg.push(obj);
-        });
-        socket.emit('prev_msgs', prevMsg);
-      }
-    });
-    var newUser = new userData({
-      username: data,
-      socketId: socket.id,
-    });
+    if(currentUsers.length === 0) {
+      console.log('first user added');
+      mesgData.find({}).exec((err, slang) => {
+        if (err) {
+          console.log(err);
+        } else {
+          slang.forEach(element => {
+            var obj = {
+              user: element.user,
+              msg: element.msg,
+              type: element.type,
+            };
+            currentPreviousMessages.push(obj);
+          });
+          socket.emit('prev_msgs', currentPreviousMessages);
+        }
+      });
+    } else {
+      socket.emit('set_users', currentUsers);
+      console.log('previous chat', currentPreviousMessages);
+      console.log('recent chat', currentMessages);
+      console.log('combine chat',  [...currentPreviousMessages, ...currentMessages]);
+      socket.emit('prev_msgs', [...currentPreviousMessages, ...currentMessages]);
+    }    
+    currentUsers.push(data);
+    socket_user_map[socket.id] = data;
     io.emit('addUser', data);
-    newUser.save((err, user) => {
-      if (err) {
-        console.log('error saving user', err);
-      } else {
-          var users = [];
-          userData.find({}).exec((err, user) => {
-            if (err) {
-              cosnole.log('error fetching user');
-            } else {
-              user.forEach((element) => {
-                users.push(element.username);
-              });
-              socket.emit('prev_users', users);
-            }
-          })
-      }
-    })
-
   })
   socket.on('Typing', (data) => {
     io.emit('usersTyping', data);
@@ -72,38 +65,33 @@ io.on('connection', (socket) => {
     io.emit('removeUserTyping', data);
   })
   socket.on('send-message', (data) => {
-
-    var newMsgInfo = new mesgData({
-      user: data.user,
-      msg: data.msg,
-    });
-    newMsgInfo.save(function (err, savedMsg) {
-      if (err) {
-        console.log(err);
-      } else {
-      }
-    })
+    currentMessages.push(data);
     io.emit('message', data);
   })
   socket.on('disconnect', ()=> {
-    console.log('deleterequest', socket.id);
-    userData.find({'socketId': socket.id}). exec((err, user)=>{
-      if(err) {
-        console.log('no user found to delete');
-      } else {
-          user.forEach(element => {        
-          io.emit('disconnectUser', element.username);
-          userData.findOneAndRemove({ 'socketId': socket.id },(err, user)=> {
-            if (err) {
-              console.log('error deleting');
-            }
-            else {
-              console.log('successfully deleted');
-            }
-          }); 
+    console.log('deleterequest', socket_user_map[socket.id]);
+    let temp = socket.id;
+    currentUsers.splice(currentUsers.indexOf(socket_user_map[socket.id]) , 1);
+    console.log('remaining users', currentUsers, currentMessages);
+    delete socket_user_map[socket.id];
+    io.emit('set_users', currentUsers);
+    if(currentUsers.length === 0) {
+      currentMessages.forEach(element => {
+        var newMsgInfo = new mesgData({
+          user: element.user,
+          msg: element.msg,
+          type: element.type,
+        });
+        newMsgInfo.save(function (err, savedMsg) {
+          if (err) {
+            console.log(err);
+          } else {
+          }
         })
-      }
-    })
+      })
+      currentMessages = [];
+      currentPreviousMessages = [];
+    }
  
   })
 });

@@ -11,6 +11,7 @@ var userSchema = new schema ({
 var msgSchema = new schema ({
     user: String,
     msg: String,
+    type: String,
 });
 
 module.exports = {

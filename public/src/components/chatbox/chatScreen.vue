@@ -9,8 +9,8 @@
         <div class="message-window">
           <div class="userInfo">USER {{userName}}</div>
             <div class="msg-box" v-for="(msgs, index) in messages" :key="index">
-                <div class="msg-user">{{msgs.user}}</div>
-                <div class="msg-text">{{msgs.msg}}</div>
+                <div class="msg-user" v-if="msgs.user !== userName">{{msgs.user}}</div>
+                <div class="msg-text" :class="{'this-user': msgs.user === userName}">{{msgs.msg}}</div>
             </div>
              <div class="typing-window">
               <form id='form1' action="" @submit.prevent="sendMsg">
@@ -27,7 +27,7 @@ import io from "socket.io-client";
 // window.onbeforeunload = function(event) {
 //   alert('window.somefunction');
 //   return '';
-// }
+// }s
 export default {
   name: "chatscreen",
   props: {
@@ -51,9 +51,9 @@ export default {
   },
   created() {},
   mounted() {
-    console.log('newUser', this.userName);
+    console.log('newUser');
     this.socket.emit("user_added", this.userName);
-    this.socket.on("prev_users", data => {
+    this.socket.on("set_users", data => {
       console.log("prevusers", data);
       this.users = data;
     });
@@ -74,13 +74,7 @@ export default {
       this.typingUsers.splice(this.typingUsers.indexOf(data), 1);
     });
     this.socket.on("message", data => {
-      this.messages.splice(this.messages.length, 0, data);
-    });
-    this.socket.on("disconnectUser", data => {
-      this.users.splice(this.users.indexOf(data), 1);
-      if (this.typingUsers.indexOf(data) !== -1) {
-        this.typingUsers.splice(this.typingUsers.indexOf(data), 1);
-      }
+      this.messages.push(data);
     });
   },
   beforeDestroy() {
@@ -111,7 +105,8 @@ export default {
       if (this.messageInput.length !== 0) {
         var obj = {
           user: this.userName,
-          msg: this.messageInput
+          msg: this.messageInput,
+          type: 'text',
         };
         this.messageInput = "";
         this.socket.emit("send-message", obj);
@@ -170,8 +165,12 @@ export default {
     border: 2 * $s solid grey;
     .msg-box {
       position: relative;
-      width: 100%;
-      height: 100 * $s;
+      width: 1240 * $s;
+      margin-left: 20 * $s;
+      margin-right: 20 * $s;
+      height: auto;
+      margin-bottom: 20 * $s;
+      background-color: whitesmoke;
       .msg-user {
         position: relative;
         text-align: left;
@@ -179,6 +178,9 @@ export default {
       .msg-text {
         position: relative;
         text-align: left;
+        &.this-user {
+        text-align: right;
+      }
       }
     }
 
