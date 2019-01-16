@@ -1,26 +1,43 @@
 <template>
-    <div class="chat-window">
-        <div class="user-window">
-            <div class="user-heading"><h2>USERS</h2></div>
-            <div class="user-list" v-for="(user) in users" :key="user">{{user}} 
-              <div v-if="typingUsers.includes(user)" class="pencil">&#9998;</div>
-            </div>
-        </div>
-        <div class="message-window">
-          <div class="userInfo">USER {{userName}}</div>
-            <div class="msg-box" v-for="(msgs, index) in messages" :key="index">
-                <div class="msg-user" v-if="msgs.user !== userName">{{msgs.user}}</div>
-                <div class="msg-text" :class="{'this-user': msgs.user === userName}">{{msgs.msg}}</div>
-            </div>
-             <div class="typing-window">
-              <form id='form1' action="" @submit.prevent="sendMsg">
-                <input class="inputField" type="text" v-model="messageInput">
-                <input class="sendButton" type="submit" value="SEND">                
-                <div class="sendImg" @click="sendImage">img</div>
-              </form>
-            </div>
-        </div>
+  <div class="chat-window">
+    <div class="user-window">
+      <div class="user-heading">
+        <h2>USERS</h2>
+      </div>
+      <div class="user-list" v-for="(user) in users" :key="user">
+        {{user}}
+        <div v-if="typingUsers.includes(user)" class="pencil">&#9998;</div>
+      </div>
     </div>
+    <div class="message-window">
+      <div class="userInfo">USER {{userName}}</div>
+      <div class="message-content">
+        <div class="message-content-scroll">
+          <div
+            class="msg-box"
+            v-for="(msg, index) in messages"
+            :class="{'this-user': msg.user === userName}"
+            :key="index"
+          >
+            <div class="msg-user" v-if="msg.user !== userName">{{msg.user}}</div>
+            <div class="msg-text" v-if="msg.type === 'text'">{{msg.msg}}</div>
+            <div
+              class="msg-image"
+              v-else-if="msg.type === 'image'"
+              :style="{ 'background-image': 'url(' + msg.msg + ')' }"
+            ></div>
+          </div>
+        </div>
+      </div>
+      <div class="typing-window">
+        <form id="form1" action @submit.prevent="sendMsg">
+          <input class="inputField" type="text" v-model="messageInput">
+          <input class="sendButton" type="submit" value="SEND">
+          <input class="sendImg" id="browse-file" value="image" type="file" @change="sendImage">
+        </form>
+      </div>
+    </div>
+  </div>
 </template>
 <script>
 import io from "socket.io-client";
@@ -40,7 +57,7 @@ export default {
     messageInput(nval, oval) {
       if (this.typingUsers.indexOf(this.userName) === -1) {
         if (nval.length > 0) {
-          console.log('emit typing');
+          console.log("emit typing");
           this.socket.emit("Typing", this.userName);
         }
       }
@@ -51,7 +68,7 @@ export default {
   },
   created() {},
   mounted() {
-    console.log('newUser');
+    console.log("newUser");
     this.socket.emit("user_added", this.userName);
     this.socket.on("set_users", data => {
       console.log("prevusers", data);
@@ -59,7 +76,6 @@ export default {
     });
     this.socket.on("prev_msgs", data => {
       this.messages = data;
-      console.log("initial", this.messages, data);
     });
     this.socket.on("addUser", data => {
       this.users.push(data);
@@ -74,21 +90,24 @@ export default {
       this.typingUsers.splice(this.typingUsers.indexOf(data), 1);
     });
     this.socket.on("message", data => {
+      if(data.image) {
+        
+      }
       this.messages.push(data);
     });
   },
   beforeDestroy() {
     // alert('beforedstroy');
   },
-  destroyed() {
-  },
+  destroyed() {},
   data() {
     return {
       users: [],
       typingUsers: [],
       messageInput: "",
       socket: io("localhost:3000"),
-      messages: []
+      messages: [], 
+      urlTemp: '',
     };
   },
   //  ready: function () {
@@ -106,13 +125,29 @@ export default {
         var obj = {
           user: this.userName,
           msg: this.messageInput,
-          type: 'text',
+          type: "text"
         };
         this.messageInput = "";
         this.socket.emit("send-message", obj);
       }
     },
     sendImage(e) {
+      console.log('path ', e.target.files[0]);
+      var fileData = e.target.files[0];
+      
+      let obj = {
+        user: this.userName,
+        msg: "/src/static/images/hi.png",
+        type: "image",
+        data: "",
+      };
+      var reader = new FileReader();
+      console.log(reader);
+      reader.onload = function(e){
+      var dataURL = reader.result;
+      console.log('dataurl', dataURL);
+    };
+      this.socket.emit("send-message", obj);
       console.log("sending image");
     }
   }
@@ -134,7 +169,7 @@ export default {
   .user-window {
     position: relative;
     width: 400 * $s;
-    height: 100%;
+    height: 1076 * $s;
     display: inline-block;
     vertical-align: top;
     // flex-wrap: wrap;
@@ -155,32 +190,71 @@ export default {
     }
   }
   .message-window {
-    .userInfo {
-      position: relative;
-    }
     position: relative;
     height: 1076 * $s;
     width: 1300 * $s;
     display: inline-block;
     border: 2 * $s solid grey;
-    .msg-box {
+    .userInfo {
       position: relative;
-      width: 1240 * $s;
-      margin-left: 20 * $s;
-      margin-right: 20 * $s;
-      height: auto;
-      margin-bottom: 20 * $s;
-      background-color: whitesmoke;
-      .msg-user {
-        position: relative;
-        text-align: left;
-      }
-      .msg-text {
-        position: relative;
-        text-align: left;
-        &.this-user {
-        text-align: right;
-      }
+      width: 100%;
+      height: 70 * $s;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .message-content {
+      position: absolute;
+      width: 100%;
+      height: 881 * $s;
+      // overflow: scroll;
+      .message-content-scroll {
+        position: absolute;
+        width: 100%;
+        height: auto;
+        bottom: 0;
+        // overflow: hidden;
+        .msg-box {
+          position: relative;
+          width: 1240 * $s;
+          margin-left: 20 * $s;
+          margin-right: 20 * $s;
+          height: auto;
+          margin-bottom: 40 * $s;
+          // background-color: whitesmoke;
+          &.this-user {
+            display: flex;
+            // align-items: right;
+            justify-content: flex-end;
+          }
+          .msg-user {
+            position: relative;
+            text-align: left;
+            font-size: 30px;
+            width: 60%;
+            color: brown;
+          }
+          .msg-text {
+            position: relative;
+            text-align: left;
+            font-size: 20px;
+            width: auto;
+            max-width: 744 * $s;
+            color: cornflowerblue;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+            //interesting thing happens for overflowing text with below lines
+            // overflow: hidden;
+            // text-overflow: ellipsis;
+          }
+          .msg-image {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            background-repeat: no-repeat;
+            background-size: 100% 100%;
+          }
+        }
       }
     }
 
@@ -188,11 +262,10 @@ export default {
       position: absolute;
       width: 100%;
       height: 100 * $s;
-      bottom: 0;
+      bottom: 25 * $s;
       // vertical-align: top;
       .inputField {
         position: absolute;
-        bottom: 25 * $s;
         left: 5%;
         width: 950 * $s;
         height: 100%;
@@ -203,7 +276,6 @@ export default {
         position: absolute;
         width: 100 * $s;
         height: 100%;
-        bottom: 25 * $s;
         left: 1050 * $s;
         // display: inline-block;
       }
@@ -211,7 +283,6 @@ export default {
         position: absolute;
         width: 100 * $s;
         height: 100%;
-        bottom: 25 * $s;
         left: 1175 * $s;
         text-align: center;
         line-height: 97px;

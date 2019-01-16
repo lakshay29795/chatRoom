@@ -2,6 +2,7 @@ var http = require('http');
 var express = require('express');
 var path = require('path');
 var cors = require('cors');
+var fs = require('fs');
 var app = express();
 var mongoose = require('mongoose');
 
@@ -66,7 +67,18 @@ io.on('connection', (socket) => {
   })
   socket.on('send-message', (data) => {
     currentMessages.push(data);
-    io.emit('message', data);
+    if(data.type === 'text') {
+      io.emit('message', data);
+    } else if (data.type === 'image') {
+      fs.readFile(__dirname + '/public'+ data.msg, function(err, buf) {
+        if(err) {
+          console.log('error reading image file');
+        } else {
+          io.emit('message', {image: true, buffer: buf.toString('base64')});
+        }
+
+      })
+    }
   })
   socket.on('disconnect', ()=> {
     console.log('deleterequest', socket_user_map[socket.id]);
