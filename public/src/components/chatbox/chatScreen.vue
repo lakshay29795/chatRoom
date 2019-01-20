@@ -21,14 +21,14 @@
           >
             <div class="msg-user" v-if="msg.user !== userName">{{msg.user}}</div>
             <div class="msg-text" v-if="msg.type === 'text'">{{msg.msg}}</div>
-            <div class="msg-image" v-else-if="msg.type === 'image'">
+            <div class="msg-image" v-else-if="msg.type.includes('image') !== -1">
               <img class="msg-image-inner" :src="msg.msg" alt>
             </div>
           </div>
         </div>
       </div>
       <div class="typing-window">
-        <form id="form1" action @submit.prevent="sendMsg">
+        <form id="form1" action @submit.prevent="sendMsg" enctype="multipart/form-data">
           <input class="inputField" type="text" v-model="messageInput">
           <div class="sendButton" >
             <input class="sendButton-inner" type="submit">

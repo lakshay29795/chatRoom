@@ -16,13 +16,12 @@ const port = process.env.PORT || 3000;
 var server = app.listen(port);
 var bodyParser = require('body-parser');
 app.use(bodyParser.json());
-
 app.use(cors());
 var posts = require('./routes/posts/index');
 var dbData = require('./db.model');
 var mesgData = dbData.mesg;
 // var userData = dbData.users;
-
+app.use(express.static(__dirname + '/serverFiles'));
 app.use('/api/posts', posts);
 var io = require('socket.io')(server);
 let currentUsers = [];
@@ -63,23 +62,20 @@ io.on('connection', (socket) => {
     io.emit('removeUserTyping', data);
   })
   socket.on('send-message', (data) => {
-    currentMessages.push(data);
     if (data.type === 'text') {
       io.emit('message', data);
-    } else if (data.type === 'image') {
-      data.msg = `data:image/png;base64,${data.msg.toString('base64')}`;
+    } else if (data.type.includes('image') !== -1) {
+      // console.log('pathname', data.msg);
+      let fileName = socket_user_map[socket.id]+ randomString() + '.' + data.type.split('/')[1];
+      let filePath = `./serverFiles/${fileName}`;
+      // console.log('path', data.msg.toString());
+      var writestream = fs.createWriteStream(`./serverFiles/${fileName}`);
+      writestream.write(data.msg);
+      // data.msg = `data:image/png;base64,${data.msg.toString('base64')}`;
+      data.msg = `http://localhost:3000/${fileName}`;
       io.emit('message', data);
-      // fs.readFile(__dirname + '/public'+ data.msg, function(err, buf) {
-      //   if(err) {
-      //     console.log('error reading image file', err);
-      //   } else {
-      //     console.log(data.data);
-      //     data.data = {image: true, buffer: `data:image/png;base64,${data.data.toString('base64')}`};
-      //     io.emit('message', data);
-      //   }
-
-      // })
     }
+    currentMessages.push(data);
   })
   socket.on('disconnect', () => {
     let temp = socket.id;
@@ -108,4 +104,15 @@ io.on('connection', (socket) => {
 
   })
 });
+
+function randomString() {
+  var text = "";
+  var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+  for (var i = 0; i < 5; i++)
+    text += possible.charAt(Math.floor(Math.random() * possible.length));
+
+  return text;
+}
+
 console.log('server running at port 3000');

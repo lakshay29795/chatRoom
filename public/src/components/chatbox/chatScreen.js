@@ -95,9 +95,11 @@ export default {
 
       let obj = {
         user: this.userName,
-        msg: "/static/images/",
-        type: "image",
+        msg: "",
+        type: `image/${fileData.name.split('.')[1]}`,
       };
+      // console.log('fs',fs);
+      // const readstream = fs.createReadStream('/static/images/hi.png');
       // var reader = new FormData();
       // reader.append("file", fileData);
       // console.log("filedata", reader);
@@ -125,7 +127,7 @@ export default {
       this.typingUsers.splice(this.typingUsers.indexOf(data), 1);
     },
     message_function(data) {
-      if (data.type === "image") {
+      if (data.type.includes('image') !== -1) {
         //not pushing imagedata to messages array
         this.messages.push(data);
       } else {
