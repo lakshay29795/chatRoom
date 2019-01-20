@@ -10,7 +10,7 @@ var mongoose = require('mongoose');
 mongoose.connect('mongodb://abc123:pass123@ds157539.mlab.com:57539/lakshay',
   { useNewUrlParser: true }, function () { }).then(() => {
   }).catch(err => {
-    console.log('fouund err');
+    console.log('error in connecting to database');
   });
 const port = process.env.PORT || 3000;
 var server = app.listen(port);
@@ -28,20 +28,20 @@ var io = require('socket.io')(server);
 let currentUsers = [];
 let currentMessages = [];
 let currentPreviousMessages = [];
-let socket_user_map ={};
+let socket_user_map = {};
 io.on('connection', (socket) => {
   socket.on('user_added', (data) => {
-    if(currentUsers.length === 0) {
-      console.log('first user added');
+    if (currentUsers.length === 0) {
       mesgData.find({}).exec((err, slang) => {
         if (err) {
           console.log(err);
         } else {
           slang.forEach(element => {
+            const {user, msg, type} = element;
             var obj = {
-              user: element.user,
-              msg: element.msg,
-              type: element.type,
+              user,
+              msg,
+              type,
             };
             currentPreviousMessages.push(obj);
           });
@@ -50,11 +50,8 @@ io.on('connection', (socket) => {
       });
     } else {
       socket.emit('set_users', currentUsers);
-      console.log('previous chat', currentPreviousMessages);
-      console.log('recent chat', currentMessages);
-      console.log('combine chat',  [...currentPreviousMessages, ...currentMessages]);
       socket.emit('prev_msgs', [...currentPreviousMessages, ...currentMessages]);
-    }    
+    }
     currentUsers.push(data);
     socket_user_map[socket.id] = data;
     io.emit('addUser', data);
@@ -67,33 +64,37 @@ io.on('connection', (socket) => {
   })
   socket.on('send-message', (data) => {
     currentMessages.push(data);
-    if(data.type === 'text') {
+    if (data.type === 'text') {
       io.emit('message', data);
     } else if (data.type === 'image') {
-      fs.readFile(__dirname + '/public'+ data.msg, function(err, buf) {
-        if(err) {
-          console.log('error reading image file');
-        } else {
-          io.emit('message', {image: true, buffer: buf.toString('base64')});
-        }
+      data.msg = `data:image/png;base64,${data.msg.toString('base64')}`;
+      io.emit('message', data);
+      // fs.readFile(__dirname + '/public'+ data.msg, function(err, buf) {
+      //   if(err) {
+      //     console.log('error reading image file', err);
+      //   } else {
+      //     console.log(data.data);
+      //     data.data = {image: true, buffer: `data:image/png;base64,${data.data.toString('base64')}`};
+      //     io.emit('message', data);
+      //   }
 
-      })
+      // })
     }
   })
-  socket.on('disconnect', ()=> {
-    console.log('deleterequest', socket_user_map[socket.id]);
+  socket.on('disconnect', () => {
     let temp = socket.id;
-    currentUsers.splice(currentUsers.indexOf(socket_user_map[socket.id]) , 1);
-    console.log('remaining users', currentUsers, currentMessages);
+    currentUsers.splice(currentUsers.indexOf(socket_user_map[socket.id]), 1);
     delete socket_user_map[socket.id];
     io.emit('set_users', currentUsers);
-    if(currentUsers.length === 0) {
+    if (currentUsers.length === 0) {
       currentMessages.forEach(element => {
-        var newMsgInfo = new mesgData({
-          user: element.user,
-          msg: element.msg,
-          type: element.type,
-        });
+        const { type, msg, user } = element;
+        const dbObj = {
+          user,
+          msg,
+          type,
+        };
+        var newMsgInfo = new mesgData(dbObj);
         newMsgInfo.save(function (err, savedMsg) {
           if (err) {
             console.log(err);
@@ -104,7 +105,7 @@ io.on('connection', (socket) => {
       currentMessages = [];
       currentPreviousMessages = [];
     }
- 
+
   })
 });
 console.log('server running at port 3000');

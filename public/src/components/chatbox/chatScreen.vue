@@ -21,139 +21,27 @@
           >
             <div class="msg-user" v-if="msg.user !== userName">{{msg.user}}</div>
             <div class="msg-text" v-if="msg.type === 'text'">{{msg.msg}}</div>
-            <div
-              class="msg-image"
-              v-else-if="msg.type === 'image'"
-              :style="{ 'background-image': 'url(' + msg.msg + ')' }"
-            ></div>
+            <div class="msg-image" v-else-if="msg.type === 'image'">
+              <img class="msg-image-inner" :src="msg.msg" alt>
+            </div>
           </div>
         </div>
       </div>
       <div class="typing-window">
         <form id="form1" action @submit.prevent="sendMsg">
           <input class="inputField" type="text" v-model="messageInput">
-          <input class="sendButton" type="submit" value="SEND">
-          <input class="sendImg" id="browse-file" value="image" type="file" @change="sendImage">
+          <div class="sendButton" >
+            <input class="sendButton-inner" type="submit">
+          </div>
+          <div class="sendImg">
+            <input class="sendImg-inner" type="file" @change="sendImage">
+          </div>
         </form>
       </div>
     </div>
   </div>
 </template>
-<script>
-import io from "socket.io-client";
-// window.onbeforeunload = function(event) {
-//   alert('window.somefunction');
-//   return '';
-// }s
-export default {
-  name: "chatscreen",
-  props: {
-    userName: {
-      type: String,
-      required: true
-    }
-  },
-  watch: {
-    messageInput(nval, oval) {
-      if (this.typingUsers.indexOf(this.userName) === -1) {
-        if (nval.length > 0) {
-          console.log("emit typing");
-          this.socket.emit("Typing", this.userName);
-        }
-      }
-      if (nval.length === 0) {
-        this.socket.emit("notTyping", this.userName);
-      }
-    }
-  },
-  created() {},
-  mounted() {
-    console.log("newUser");
-    this.socket.emit("user_added", this.userName);
-    this.socket.on("set_users", data => {
-      console.log("prevusers", data);
-      this.users = data;
-    });
-    this.socket.on("prev_msgs", data => {
-      this.messages = data;
-    });
-    this.socket.on("addUser", data => {
-      this.users.push(data);
-    });
-    this.socket.on("usersTyping", data => {
-      if (this.typingUsers.indexOf(data) === -1) {
-        this.typingUsers.push(data);
-        console.log(this.typingUsers, this.typingUsers.includes(this.userName));
-      }
-    });
-    this.socket.on("removeUserTyping", data => {
-      this.typingUsers.splice(this.typingUsers.indexOf(data), 1);
-    });
-    this.socket.on("message", data => {
-      if(data.image) {
-        
-      }
-      this.messages.push(data);
-    });
-  },
-  beforeDestroy() {
-    // alert('beforedstroy');
-  },
-  destroyed() {},
-  data() {
-    return {
-      users: [],
-      typingUsers: [],
-      messageInput: "",
-      socket: io("localhost:3000"),
-      messages: [], 
-      urlTemp: '',
-    };
-  },
-  //  ready: function () {
-  //           // window.onbeforeunload = this.leaving();
-  //           // window.onblur = this.leaving;
-  //           //window.onmouseout = this.leaving;
-
-  //       },
-  methods: {
-    // leaving() {
-    //   alert('leaving');
-    // },
-    sendMsg(eve) {
-      if (this.messageInput.length !== 0) {
-        var obj = {
-          user: this.userName,
-          msg: this.messageInput,
-          type: "text"
-        };
-        this.messageInput = "";
-        this.socket.emit("send-message", obj);
-      }
-    },
-    sendImage(e) {
-      console.log('path ', e.target.files[0]);
-      var fileData = e.target.files[0];
-      
-      let obj = {
-        user: this.userName,
-        msg: "/src/static/images/hi.png",
-        type: "image",
-        data: "",
-      };
-      var reader = new FileReader();
-      console.log(reader);
-      reader.onload = function(e){
-      var dataURL = reader.result;
-      console.log('dataurl', dataURL);
-    };
-      this.socket.emit("send-message", obj);
-      console.log("sending image");
-    }
-  }
-};
-</script>
-
+<script src="./chatScreen.js"></script>
 <style lang="scss" scoped>
 @import "./variables.scss";
 .chat-window {
@@ -253,6 +141,11 @@ export default {
             height: 100px;
             background-repeat: no-repeat;
             background-size: 100% 100%;
+            .msg-image-inner {
+              position: relative;
+              width: 100%;
+              height: 100%;
+            }
           }
         }
       }
@@ -270,6 +163,8 @@ export default {
         width: 950 * $s;
         height: 100%;
         border: 1 * $s solid black;
+        border-radius: 45 * $s;
+        outline: none;
         // display: inline-block;
       }
       .sendButton {
@@ -277,17 +172,31 @@ export default {
         width: 100 * $s;
         height: 100%;
         left: 1050 * $s;
+        background-repeat: no-repeat;
+        background-size: 100% 100%;
+        background-image: url("/static/images/send-button.jpg");
         // display: inline-block;
+        .sendButton-inner {
+          position: absolute;
+          width: 100%;
+          height: 100%;
+          opacity: 0;
+        }
       }
       .sendImg {
         position: absolute;
         width: 100 * $s;
         height: 100%;
         left: 1175 * $s;
-        text-align: center;
-        line-height: 97px;
-        font-size: 43px;
-        background-color: rgb(225, 227, 227);
+        background-repeat: no-repeat;
+        background-size: 100% 100%;
+        background-image: url("/static/images/select-image-icon.png");
+        .sendImg-inner {
+          position: relative;
+          width: 100%;
+          height: 100%;
+          opacity: 0;
+        }
       }
     }
   }
