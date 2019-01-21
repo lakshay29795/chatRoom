@@ -1,5 +1,4 @@
 import io from "socket.io-client";
-import fs from 'fs';
 // window.onbeforeunload = function(event) {
 //   alert('window.somefunction');
 //   return '';
@@ -25,12 +24,16 @@ export default {
       }
     }
   },
-  created() { },
+  created() {
+  },
   mounted() {
     this.socket.emit("user_added", this.userName);
     this.socketMap.forEach(element => {
-      this.socket.on(element.event, element.function);      
+      this.socket.on(element.event, element.function);
     });
+    this.messageWindow = document.querySelectorAll('.message-content')[0];
+    this.messageWindowWrapper = document.querySelectorAll('.message-content-wrapper')[0];
+    // this.messageWindowWrapper.scrollTop = 600;
   },
   destroyed() { },
   data() {
@@ -40,6 +43,8 @@ export default {
       messageInput: "",
       socket: io("localhost:3000"),
       messages: [],
+      messageWindow: 0,
+      messageWindowWrapper: 0,
       socketMap: [
         {
           event: 'set_users',
@@ -88,6 +93,7 @@ export default {
         this.messageInput = "";
         this.socket.emit("send-message", obj);
       }
+      this.scroll();
     },
     sendImage(e) {
       console.log("path ", e.target.files[0]);
@@ -98,21 +104,30 @@ export default {
         msg: "",
         type: `image/${fileData.name.split('.')[1]}`,
       };
-      // console.log('fs',fs);
-      // const readstream = fs.createReadStream('/static/images/hi.png');
-      // var reader = new FormData();
-      // reader.append("file", fileData);
-      // console.log("filedata", reader);
       obj.msg = fileData;
-      console.log("read", obj.msg);
       this.socket.emit("send-message", obj);
-      console.log("sending image");
+      this.scroll();
     },
+    scroll() {
+      console.log('in scroll function');
+      var messageContent = document.querySelector('#scrolling');
+      console.log(messageContent.offsetHeight, this.messageWindow.offsetHeight, messageContent.offsetHeight - this.messageWindow.offsetHeight);
+      if (messageContent.offsetHeight > this.messageWindow.offsetHeight) {
+        this.messageWindowWrapper.scrollTop = messageContent.offsetHeight - this.messageWindow.offsetHeight;
+        console.log(this.messageWindowWrapper.scrollTop);
+      }
+    },
+    // socket callBack functions below
     set_users_function(data) {
       this.users = data;
     },
     prev_msgs_function(data) {
       this.messages = data;
+      // nextTick because messages are loaded into dom after the function call
+      this.$nextTick(() => {
+        console.log('calling scroll from prev_msgs');
+        this.scroll();
+      });
     },
     addUser_function(data) {
       this.users.push(data);
@@ -133,6 +148,7 @@ export default {
       } else {
         this.messages.push(data);
       }
+      this.scroll();
     }
   }
 };

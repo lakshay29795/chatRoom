@@ -12,7 +12,8 @@
     <div class="message-window">
       <div class="userInfo">USER {{userName}}</div>
       <div class="message-content">
-        <div class="message-content-scroll">
+        <div class="message-content-wrapper" >
+        <div class="message-content-scroll" id="scrolling">
           <div
             class="msg-box"
             v-for="(msg, index) in messages"
@@ -25,6 +26,7 @@
               <img class="msg-image-inner" :src="msg.msg" alt>
             </div>
           </div>
+        </div>
         </div>
       </div>
       <div class="typing-window">
@@ -48,8 +50,8 @@
   position: absolute;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
+  width: 1920 * $s;
+  height: 1080 * $s;
   //   display: flex;
   //   flex-wrap: wrap;
   align-items: flex-start;
@@ -95,13 +97,18 @@
       position: absolute;
       width: 100%;
       height: 881 * $s;
-      // overflow: scroll;
+      overflow: hidden;
+      .message-content-wrapper {
+        overflow: auto;
+        position: absolute;
+        width: 1500 * $s;
+        height: 981 * $s;
       .message-content-scroll {
         position: absolute;
-        width: 100%;
+        width: 1300 * $s;
         height: auto;
-        bottom: 0;
-        // overflow: hidden;
+        padding-bottom: 200 * $s;
+        overflow: hidden;
         .msg-box {
           position: relative;
           width: 1240 * $s;
@@ -149,6 +156,8 @@
           }
         }
       }
+
+      }
     }
 
     .typing-window {
@@ -156,6 +165,8 @@
       width: 100%;
       height: 100 * $s;
       bottom: 25 * $s;
+      z-index: 2;
+      background-color: white;
       // vertical-align: top;
       .inputField {
         position: absolute;

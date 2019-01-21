@@ -1,6 +1,6 @@
 <template>
     <div class="login-page">
-        <!-- <chatScreen class="chat-screen" v-if="isChatActive" :userName="username"></chatScreen -->
+        <!-- <chatScreen class="chat-screen" v-if="isChatActive" :userName="username"></chatScreen> -->
         <form class="login-form" action="" @submit.prevent="logingIn">
             USERNAME: <input type="text" v-model="username">
             <input type="submit" value="Log in">
@@ -9,7 +9,7 @@
 </template>
 
 <script>
-import chatScreen from './chatScreen';
+// import chatScreen from './chatScreen';
 import router from '@/router';
 
 export default {
@@ -27,7 +27,7 @@ export default {
         }
     },
     components: {
-        chatScreen,
+        // chatScreen,
     },
     
 }

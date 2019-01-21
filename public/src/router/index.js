@@ -15,7 +15,8 @@ export default new Router({
     {
       path: '/chatscreen',
       name: 'chatscreen',
-      component: chatscreen,
+      // doubt: below is changed to prevent error but need to find problem with directly using component: chatscreen
+      component: require('@/components/chatbox/chatScreen.vue').default,
       props: Router => Object.assign({}, Router.params, Router.query),
     }
   ]
