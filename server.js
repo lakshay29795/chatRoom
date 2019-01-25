@@ -36,13 +36,13 @@ io.on('connection', (socket) => {
           console.log(err);
         } else {
           slang.forEach(element => {
-            const {user, msg, type} = element;
-            var obj = {
-              user,
-              msg,
-              type,
-            };
-            currentPreviousMessages.push(obj);
+            // const {user, msg, type} = element;
+            // var obj = {
+            //   user,
+            //   msg,
+            //   type,
+            // };
+            currentPreviousMessages.push(element);
           });
           socket.emit('prev_msgs', currentPreviousMessages);
         }
@@ -84,13 +84,13 @@ io.on('connection', (socket) => {
     io.emit('set_users', currentUsers);
     if (currentUsers.length === 0) {
       currentMessages.forEach(element => {
-        const { type, msg, user } = element;
-        const dbObj = {
-          user,
-          msg,
-          type,
-        };
-        var newMsgInfo = new mesgData(dbObj);
+        // const { type, msg, user } = element;
+        // const dbObj = {
+        //   user,
+        //   msg,
+        //   type,
+        // };
+        var newMsgInfo = new mesgData(element);
         newMsgInfo.save(function (err, savedMsg) {
           if (err) {
             console.log(err);

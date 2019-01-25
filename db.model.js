@@ -12,6 +12,7 @@ var msgSchema = new schema ({
     user: String,
     msg: String,
     type: String,
+    time: String,
 });
 
 module.exports = {

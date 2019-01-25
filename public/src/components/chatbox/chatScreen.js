@@ -45,6 +45,7 @@ export default {
       messages: [],
       messageWindow: 0,
       messageWindowWrapper: 0,
+      showMsgTimeInfo: '',
       socketMap: [
         {
           event: 'set_users',
@@ -79,6 +80,8 @@ export default {
   //           //window.onmouseout = this.leaving;
 
   //       },
+  computed: {
+  },
   methods: {
     // leaving() {
     //   alert('leaving');
@@ -88,9 +91,12 @@ export default {
         var obj = {
           user: this.userName,
           msg: this.messageInput,
-          type: "text"
+          type: "text",
+          time: '',
         };
         this.messageInput = "";
+        obj.time = new Date().toString();
+        console.log('tets', new Date(), obj.time);
         this.socket.emit("send-message", obj);
       }
       this.scroll();
@@ -103,8 +109,10 @@ export default {
         user: this.userName,
         msg: "",
         type: `image/${fileData.name.split('.')[1]}`,
+        time: '',
       };
       obj.msg = fileData;
+      obj.time = new Date().toString();
       this.socket.emit("send-message", obj);
       this.scroll();
     },
@@ -116,6 +124,38 @@ export default {
         this.messageWindowWrapper.scrollTop = messageContent.offsetHeight - this.messageWindow.offsetHeight;
         console.log(this.messageWindowWrapper.scrollTop);
       }
+    },
+    getTime(date) {
+      console.log(date);
+      let time = '';
+      let arr = date.split(':');
+      let arr2 = arr[0].split(' ');
+      time = arr2[arr2.length - 1] + ':' + arr[1];
+      if(parseInt(arr2[arr2.length - 1], 10) < 12) {
+        time += ' AM';
+      } else {
+        time += ' PM';
+      }
+      return time;
+      // console.log('minutes', time);
+    },
+    showTime(date) {
+      this.showMsgTimeInfo = date;
+      let time = '';
+      var arr = date.split(' ');
+      console.log('test', arr);
+      time = `${arr[1]} ${arr[2]} ${arr[3]}`;
+      let timeout = setTimeout(() => {
+        this.showMsgTimeInfo = '';
+        clearTimeout(timeout);
+      }, 1000);
+      return time;
+    },
+    hoverTime(date) {
+      if(this.showMsgTimeInfo === date) {
+        return true;
+      }
+      return false;
     },
     // socket callBack functions below
     set_users_function(data) {

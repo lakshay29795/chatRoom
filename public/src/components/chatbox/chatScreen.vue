@@ -12,27 +12,31 @@
     <div class="message-window">
       <div class="userInfo">USER {{userName}}</div>
       <div class="message-content">
-        <div class="message-content-wrapper" >
-        <div class="message-content-scroll" id="scrolling">
-          <div
-            class="msg-box"
-            v-for="(msg, index) in messages"
-            :class="{'this-user': msg.user === userName}"
-            :key="index"
-          >
-            <div class="msg-user" v-if="msg.user !== userName">{{msg.user}}</div>
-            <div class="msg-text" v-if="msg.type === 'text'">{{msg.msg}}</div>
-            <div class="msg-image" v-else-if="msg.type.includes('image') !== -1">
-              <img class="msg-image-inner" :src="msg.msg" alt>
+        <div class="message-content-wrapper">
+          <div class="message-content-scroll" id="scrolling">
+            <div
+              class="msg-box"
+              v-for="(msg, index) in messages"
+              :class="{'this-user': msg.user === userName}"
+              :key="index"
+            >
+              <div class="msg-user" v-if="msg.user !== userName">{{msg.user}}</div>
+              <div class="msg-text" v-if="msg.type === 'text'">{{msg.msg}}</div>
+              <div class="msg-image" v-else-if="msg.type.includes('image') !== -1">
+                <img class="msg-image-inner" :src="msg.msg" alt>
+              </div>
+              <div class="msg-time" @mouseover="showTime(msg.time)">
+                {{getTime(msg.time)}}
+                <div class="msg-time-hover" v-if="hoverTime(msg.time)">{{showTime(msg.time)}}</div>
+              </div>
             </div>
           </div>
-        </div>
         </div>
       </div>
       <div class="typing-window">
         <form id="form1" action @submit.prevent="sendMsg" enctype="multipart/form-data">
           <input class="inputField" type="text" v-model="messageInput">
-          <div class="sendButton" >
+          <div class="sendButton">
             <input class="sendButton-inner" type="submit">
           </div>
           <div class="sendImg">
@@ -103,60 +107,80 @@
         position: absolute;
         width: 1500 * $s;
         height: 981 * $s;
-      .message-content-scroll {
-        position: absolute;
-        width: 1300 * $s;
-        height: auto;
-        padding-bottom: 200 * $s;
-        overflow: hidden;
-        .msg-box {
-          position: relative;
-          width: 1240 * $s;
-          margin-left: 20 * $s;
-          margin-right: 20 * $s;
+        .message-content-scroll {
+          position: absolute;
+          width: 1300 * $s;
           height: auto;
-          margin-bottom: 40 * $s;
-          // background-color: whitesmoke;
-          &.this-user {
-            display: flex;
-            // align-items: right;
-            justify-content: flex-end;
-          }
-          .msg-user {
+          padding-bottom: 200 * $s;
+          overflow: hidden;
+          .msg-box {
             position: relative;
-            text-align: left;
-            font-size: 30px;
-            width: 60%;
-            color: brown;
-          }
-          .msg-text {
-            position: relative;
-            text-align: left;
-            font-size: 20px;
-            width: auto;
-            max-width: 744 * $s;
-            color: cornflowerblue;
-            word-wrap: break-word;
-            white-space: pre-wrap;
-            //interesting thing happens for overflowing text with below lines
-            // overflow: hidden;
-            // text-overflow: ellipsis;
-          }
-          .msg-image {
-            position: relative;
-            width: 100px;
-            height: 100px;
-            background-repeat: no-repeat;
-            background-size: 100% 100%;
-            .msg-image-inner {
+            width: 1240 * $s;
+            margin-left: 20 * $s;
+            margin-right: 20 * $s;
+            height: auto;
+            margin-bottom: 40 * $s;
+            // background-color: whitesmoke;
+            &.this-user {
+              display: flex;
+              // align-items: right;
+              justify-content: flex-end;
+            }
+            .msg-user {
               position: relative;
-              width: 100%;
-              height: 100%;
+              text-align: left;
+              font-size: 30px;
+              width: 60%;
+              color: brown;
+            }
+            .msg-text {
+              position: relative;
+              text-align: left;
+              font-size: 20px;
+              width: auto;
+              max-width: 744 * $s;
+              color: cornflowerblue;
+              word-wrap: break-word;
+              white-space: pre-wrap;
+              //interesting thing happens for overflowing text with below lines
+              // overflow: hidden;
+              // text-overflow: ellipsis;
+            }
+            .msg-image {
+              position: relative;
+              width: 100px;
+              height: 100px;
+              background-repeat: no-repeat;
+              background-size: 100% 100%;
+              .msg-image-inner {
+                position: relative;
+                width: 100%;
+                height: 100%;
+              }
+            }
+            .msg-time {
+              position: relative;
+              font-size: 15 * $s;
+              color: red;
+              display: flex;
+              align-items: flex-end;
+              padding-left: 10 * $s;
+              // transition: opacity 0.3s ease;
+              .msg-time-hover {
+                position: absolute;
+                top: 28px;
+                left: -39px;
+                color: black;
+                padding-left: 10px;
+                padding-right: 10px;
+                background-color: gray;
+                border-radius: 4px;
+                font-size: 17px;
+                opacity: 0.7;
+              }
             }
           }
         }
-      }
-
       }
     }
 
