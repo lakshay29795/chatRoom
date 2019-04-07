@@ -13,10 +13,12 @@
     "socket.io": "^2.2.0",
     "socket.io-client": "^2.2.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "esm": "^3.2.22"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "start": "nodemon server.js"
   },
   "author": "",
   "license": "ISC"

@@ -2,7 +2,8 @@
     <div class="login-page">
         <!-- <chatScreen class="chat-screen" v-if="isChatActive" :userName="username"></chatScreen> -->
         <form class="login-form" action="" @submit.prevent="logingIn">
-            USERNAME: <input type="text" v-model="username">
+            USERNAME: <input type="text" class="username-input" v-model="username"><br>
+            PASSWORD: <input type="text" class="password-input" v-model="password"><br>
             <input type="submit" value="Log in">
         </form>
     </div>
@@ -16,6 +17,7 @@ export default {
     data() {
         return {
             username: '',
+            password: '',
             isChatActive: false,
         };
     },
@@ -40,6 +42,13 @@ export default {
     }
     .chat-screen {
         z-index: 2;
+    }
+    .username-input {
+        border: 1px solid black;
+    }
+    .password-input {
+        border: 1px solid black;
+        margin: 10px 10px;
     }
 }
 </style>

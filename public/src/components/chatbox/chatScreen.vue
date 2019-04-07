@@ -161,7 +161,7 @@
             .msg-time {
               position: relative;
               font-size: 15 * $s;
-              color: red;
+              color: gray;
               display: flex;
               align-items: flex-end;
               padding-left: 10 * $s;

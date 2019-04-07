@@ -16,7 +16,7 @@ export default {
       if (this.typingUsers.indexOf(this.userName) === -1) {
         if (nval.length > 0) {
           console.log("emit typing");
-          this.socket.emit("Typing", this.userName);
+          this.socket.emit("isTyping", this.userName);
         }
       }
       if (nval.length === 0) {
@@ -27,7 +27,7 @@ export default {
   created() {
   },
   mounted() {
-    this.socket.emit("user_added", this.userName);
+    this.socket.emit("userAdded", this.userName);
     this.socketMap.forEach(element => {
       this.socket.on(element.event, element.function);
     });
@@ -97,7 +97,7 @@ export default {
         this.messageInput = "";
         obj.time = new Date().toString();
         console.log('tets', new Date(), obj.time);
-        this.socket.emit("send-message", obj);
+        this.socket.emit("sendMessage", obj);
       }
       this.scroll();
     },
@@ -113,7 +113,7 @@ export default {
       };
       obj.msg = fileData;
       obj.time = new Date().toString();
-      this.socket.emit("send-message", obj);
+      this.socket.emit("sendMessage", obj);
       this.scroll();
     },
     scroll() {
@@ -156,6 +156,35 @@ export default {
         return true;
       }
       return false;
+    },
+    // call this function to download a file from particular location
+    downloadFile() {
+      function forceDownload(blob, filename) {
+        var a = document.createElement('a');
+        a.download = 'downloadFile';
+        a.target = '_top';
+        a.href = blob;
+        a.click();
+      }
+      
+      // Current blob size limit is around 500MB for browsers
+      function downloadResource(url, filename) {
+        if (!filename) filename = url.split('\\').pop().split('/').pop();
+        fetch(url, {
+            headers: new Headers({
+              'Origin': location.origin
+            }),
+            mode: 'cors'
+          })
+          .then(response => response.blob())
+          .then(blob => {
+            let blobUrl = window.URL.createObjectURL(blob);
+            forceDownload(blobUrl, filename);
+          })
+          .catch(e => console.error(e));
+      }
+      
+      downloadResource('http://localhost:3000/hellofai40.png');// give url of file to be downloaded here
     },
     // socket callBack functions below
     set_users_function(data) {
