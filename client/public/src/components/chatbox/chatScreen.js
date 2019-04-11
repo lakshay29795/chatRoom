@@ -1,4 +1,4 @@
-import io from "socket.io-client";
+import configData from '@/config.js';
 // window.onbeforeunload = function(event) {
 //   alert('window.somefunction');
 //   return '';
@@ -41,7 +41,7 @@ export default {
       users: [],
       typingUsers: [],
       messageInput: "",
-      socket: io("localhost:3000"),
+      socket: configData.socketConnection,
       messages: [],
       messageWindow: 0,
       messageWindowWrapper: 0,
@@ -188,6 +188,7 @@ export default {
     },
     // socket callBack functions below
     set_users_function(data) {
+      console.log('11111111users  ', data);
       this.users = data;
     },
     prev_msgs_function(data) {

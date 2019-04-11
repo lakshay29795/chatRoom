@@ -4,8 +4,13 @@ var schema = mongoose.Schema;
 
 var userSchema = new schema ({
     username: String,
-    socketId: String,
-    
+    password: String,
+    name: String,
+    email: String,
+    isActive: {
+        type: Boolean, // to check if user already signed in somewhere, will  use later
+        default: false,
+    }
 });
 
 var msgSchema = new schema ({

@@ -1,7 +1,9 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import HelloWorld from '@/components/chatbox/login'
+import login from '@/components/chatbox/login'
 import chatscreen from '@/components/chatbox/chatScreen'
+import register from '@/components/chatbox/register';
+import dashboard from '@/components/chatbox/dashboard';
 
 Vue.use(Router)
 
@@ -9,8 +11,19 @@ export default new Router({
   routes: [
     {
       path: '/',
-      name: 'HelloWorld',
-      component: HelloWorld
+      name: 'dashboard',
+      component: dashboard
+    },
+    {
+      path: '/login',
+      name: 'login',
+      component: login
+    },
+    {
+      path: '/register',
+      name: 'register',
+      component: register,
+      props: Router => Object.assign({}, Router.params, Router.query),
     },
     {
       path: '/chatscreen',

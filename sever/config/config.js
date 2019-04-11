@@ -3,6 +3,6 @@ var DBdata = {
     password: 'pass123',
 };
 
-export default {
+module.exports = {
     DBdata,
 };
