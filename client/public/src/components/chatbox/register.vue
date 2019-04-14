@@ -1,11 +1,11 @@
 <template>
   <div class="login-page">
     <!-- <chatScreen class="chat-screen" v-if="isChatActive" :userName="username"></chatScreen> -->
-    <div v-if="true" class="errorMessage">please enter {{ blankField }}</div>
+    <div v-if="blankField" class="errorMessage">please enter {{ blankField }}</div>
     <div class="login-form">
       <form action @submit.prevent="register">
         USERNAME:
-        <input type="text" class="username-input" v-model="username">
+        <input type="text" class="formField username-input" v-model="username">
         <br>EMAIL:
         <input type="text" class="formField email-input" v-model="email">
         <br>FIRST NAME
@@ -15,8 +15,11 @@
         <br>PASSWORD:
         <input type="text" class="formField password-input" v-model="password">
         <br>
-        <input type="submit" value="Log in">
+        <input type="submit" value="Register">
       </form>
+      <div class="links">
+        <div @click="loginPageLink">Login</div>
+      </div>
     </div>
 
   </div>
@@ -67,6 +70,9 @@ export default {
       }).catch((err) => {
         throw err;
       })
+    },
+    loginPageLink() {
+      router.push({ path: "login" });
     }
   },
   components: {
@@ -99,11 +105,18 @@ export default {
       border: 1px solid black;
     }
     .username-input {
-      border: 1px solid black;
     }
     .password-input {
-      border: 1px solid black;
     }
+  }
+  .links{
+    position: relative;
+    width: auto;
+    height: 100 * $s;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 }
 </style>
