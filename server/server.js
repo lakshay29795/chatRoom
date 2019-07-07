@@ -18,9 +18,9 @@ mongoose.connect(configData.DBdata.key,
 const port = process.env.PORT || 3000;
 var server = app.listen(port);
 var bodyParser = require('body-parser');
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-app.use(cors());
-
+app.use(cors())
 app.use(
   session({
     secret: 'secret',

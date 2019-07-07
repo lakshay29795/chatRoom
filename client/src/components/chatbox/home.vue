@@ -1,7 +1,7 @@
 <template>
 <div class="wrapper">
-  <header-bar :headerPage="headerType"></header-bar>
-  <!-- <slide-menu :drawer="isSliderMenu" class="sliderWrapper"></slide-menu> -->
+  <header-bar :headerPage="headerType" @headerItems="setHeaderItems"></header-bar>
+  <header-options v-if="headerItems.length" :items="headerItems"></header-options>
   <router-view></router-view>
   <!-- <footer-bar :footer-page="'chat'"></footer-bar> -->
 </div>
@@ -10,11 +10,13 @@
 <script>
 import router from "@/router";
 import headerBar from "@/components/chatbox/pages/header";
-import slideMenu from "@/components/chatbox/utilities/slider"
+import headerOptions from "./utilities/headerOptions"
+import * as FormData from 'form-data'
 export default {
   data() {
     return {
       headerType: 'main', // main, chat, settings
+      headerItems: [],
       toRoute: [
         `login`,
         `register`,
@@ -43,11 +45,14 @@ export default {
     },
     registerPage() {
       // router.push({ path: 'register' });
-    }
+    },
+    setHeaderItems(items) {
+      this.headerItems = items;
+    },
   },
   components: {
     headerBar,
-    slideMenu,
+    headerOptions,
   },
 };
 </script>

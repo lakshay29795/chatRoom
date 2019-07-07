@@ -25,7 +25,6 @@ passport.use('local', new localStrategy(
   function (username, password, done) {
     console.log('in localstrategy')
     userData.findOne({ username: username }, function (err, user) {
-      console.log('found user', user);
       if (err) return done(err);
       if (!user) return done(null, false, { message: 'No user found' });
       if (user.isActive) return done(null, false, { message: 'user already signed in' });

@@ -1,6 +1,3 @@
-import groupChat from "./groupChat"
-import personalChat from "./personalChat"
-
 const state = {
 };
 
@@ -22,7 +19,5 @@ export default {
   mutations,
   getters,
   modules: {
-    groupChat,
-    personalChat,
   },
 };

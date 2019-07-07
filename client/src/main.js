@@ -3,12 +3,13 @@ import './plugins/vuetify'
 import App from "./App.vue";
 import router from "./router/index"; 
 import store from "./store";
-import "./registerServiceWorker";
 import axios from 'axios'
+import "./registerServiceWorker";
 import VeeValidate from 'vee-validate';
 
 Vue.use(VeeValidate)
 Vue.prototype.$http = axios
+Vue.prototype.$resource = "@/static"
 
 Vue.config.productionTip = false;
 

@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <form>
+    <form v-if="!isUploadImage" enctype="multipart/form-data">
       <v-text-field
         v-model="userName"
         v-validate="'required|max:20'"
@@ -18,14 +18,22 @@
         data-vv-name="password"
         required
       ></v-text-field>
-      <!-- <v-text-field
+      <v-text-field
+        v-model="name"
+        v-validate="'required'"
+        :error-messages="errors.collect('name')"
+        label="Your Name"
+        data-vv-name="name  "
+        required
+      ></v-text-field>
+      <v-text-field
         v-model="email"
         v-validate="'required|email'"
         :error-messages="errors.collect('email')"
         label="E-mail"
         data-vv-name="email"
         required
-      ></v-text-field>-->
+      ></v-text-field>
       <!-- <v-select
           v-model="select"
           v-validate="'required'"
@@ -46,14 +54,17 @@
         required
       ></v-checkbox> -->
 
-      <v-btn @click="submit">Login</v-btn>
+      <v-btn @click="submit">Register</v-btn>
       <v-btn @click="clear">clear</v-btn>
     </form>
+    <upload-image v-else @uploadImage="imageUploadCallback"></upload-image>
   </v-container>
 </template>
 
 <script>
 import router from "@/router";
+import Messages from "@/Messages";
+import uploadImage from "../utilities/uploadImage";
 export default {
   props: {
     userName1: {
@@ -65,7 +76,10 @@ export default {
     return {
       userName: "",
       password: "",
+      name: "",
+      email: "",
       checkbox: null,
+      isUploadImage: false,
       dictionary: {
         attributes: {
           email: "E-mail Address"
@@ -89,35 +103,63 @@ export default {
   },
   methods: {
     submit() {
-      var func = function(response) {
+      this.isUploadImage = true;
+    },
+    clear() {
+      this.userName = "";
+      this.password = "";
+      this.name = "";
+      this.select = null;
+      this.$validator.reset();
+    },
+    imageUploadCallback(image) {
+      var registerCallback = function(response) {
         console.log(response, this.userName);
-        //  if (response.)
+        if (response.data.redirect === 'chatscreen') window.localStorage.setItem('chatty', this.userName);
         router.push({
-          path: response.data,
+          path: response.data.redirect,
           query: { userName: this.userName }
         });
       };
       this.$validator.validateAll().then(result => {
         if (result) {
-          this.$http
-            .post("http://localhost:3000/api/posts/login", {
+          console.log('sending register request');
+          
+          const data = {
               username: this.userName,
-              password: this.password
-            })
-            .then(func.bind(this))
-            .catch(err => {
-              console.log(err);
-            });
+              password: this.password,
+              name: this.name,
+              email: this.email,
+              profilePicture: image.type,
+          };
+          const formData = new FormData();
+          // console.log('77777777', formData.getHeaders());
+          const config = {
+            headers:  {
+              'Content-Type': 'multipart/form-data',
+            },
+          };
+          Object.keys(data).forEach((key) => {
+            formData.append(key, data[key]);
+          });
+          formData.append('stream', image.data);
+          // let headers = new Headers({ 'Content-Type': 'multipart/form-data' });
+          // let options = new RequestOptions({ headers: headers,withCredentials: true  });
+          // formData.append('config', config);
+          console.log('sending data', formData);
+          this.$http.post('http://localhost:3000/api/posts/register', formData)
+          .then(registerCallback.bind(this))
+          .catch(err => {
+            console.log(err);
+          });
+          // ('POST', 'register', formData, registerCallback.bind(this));
         }
       });
-    },
-    clear() {
-      this.userName = "";
-      this.password = "";
-      this.select = null;
-      this.$validator.reset();
     }
-  }
+  },
+  components: {
+    uploadImage,
+  },
 };
 </script>
 

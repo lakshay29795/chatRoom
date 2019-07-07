@@ -17,18 +17,18 @@ export default new Router({
       children: [
         {
           path: 'login',
-          name: '',
+          name: 'login',
           component: login,
         },
         {
           path: 'register',
-          name: '',
+          name: 'register',
           component: register,
           // props: Router => Object.assign({}, Router.params, Router.query),
         },
         {
           path: '/chatscreen',
-          name: '',
+          name: 'chatscreen',
           component: chatscreen,
           // doubt: below is changed to prevent error but need to find problem with directly using component: chatscreen
           // component: require('@/components/chatbox/chatScreen.vue').default,
@@ -38,7 +38,7 @@ export default new Router({
     },
     {
       path: '/chatWindow',
-      name: '',
+      name: 'chatWindow',
       component: chatWindow,
       // doubt: below is changed to prevent error but need to find problem with directly using component: chatscreen
       // component: require('@/components/chatbox/chatScreen.vue').default,

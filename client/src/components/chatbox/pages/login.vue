@@ -15,6 +15,7 @@
         v-validate="'required'"
         :error-messages="errors.collect('password')"
         label="PASSWORD"
+        :type="'password'"
         data-vv-name="password"
         required
       ></v-text-field>
@@ -54,6 +55,7 @@
 
 <script>
 import router from "@/router";
+import Messages from "@/Messages";
 export default {
   props: {
     userName1: {
@@ -89,26 +91,26 @@ export default {
   },
   methods: {
     submit() {
-      var func = function(response) {
+      var loginCallback = function(response) {
         console.log(response, this.userName);
-        //  if (response.)
-        window.localStorage.setItem('chatty', this.userName);
+         if (response.data.redirect === 'chatscreen') window.localStorage.setItem('chatty', this.userName);
         router.push({
-          path: response.data,
+          path: response.data.redirect,
           query: { userName: this.userName }
         });
       };
       this.$validator.validateAll().then(result => {
         if (result) {
-          this.$http
-            .post("http://localhost:3000/api/posts/login", {
-              username: this.userName,
-              password: this.password
-            })
-            .then(func.bind(this))
-            .catch(err => {
-              console.log(err);
-            });
+          const data = {
+            username: this.userName,
+            password: this.password
+          };
+          this.$http.post('http://localhost:3000/api/posts/login', data)
+          .then(loginCallback.bind(this))
+          .catch(err => {
+            console.log(err);
+          });
+          // Messages.httpRequest('POST', 'login', data, loginCallback.bind(this));
         }
       });
     },
