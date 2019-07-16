@@ -33,17 +33,17 @@ export default new Router({
           // doubt: below is changed to prevent error but need to find problem with directly using component: chatscreen
           // component: require('@/components/chatbox/chatScreen.vue').default,
           props: Router => Object.assign({}, Router.params, Router.query),
+        },
+        {
+          path: '/chatWindow',
+          name: 'chatWindow',
+          component: chatWindow,
+          // doubt: below is changed to prevent error but need to find problem with directly using component: chatscreen
+          // component: require('@/components/chatbox/chatScreen.vue').default,
+          props: Router => Object.assign({}, Router.params, Router.query),
         }
       ]
     },
-    {
-      path: '/chatWindow',
-      name: 'chatWindow',
-      component: chatWindow,
-      // doubt: below is changed to prevent error but need to find problem with directly using component: chatscreen
-      // component: require('@/components/chatbox/chatScreen.vue').default,
-      props: Router => Object.assign({}, Router.params, Router.query),
-    }
     // {
     //   path: '/login',
     //   name: 'login',

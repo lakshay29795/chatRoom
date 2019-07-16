@@ -3,11 +3,11 @@
     <v-container fluid grid-list-md>
       <v-layout row wrap>
         <v-flex
-          v-for="card in friendsList"
+          v-for="(card, idx) in friendsData"
           :key="card.title"
-          v-bind="{ [`xs${card.flex}`]: true }"
+          v-bind="{ [`xs${flexVal(idx)}`]: true }"
           @click="openChatWindow($event, card)">
-          <v-card v-if="friendsList.length > 0">
+          <v-card v-if="friendsData.length > 0">
             <v-img :src="card.src" height="200px">
               <v-container fill-height fluid pa-2>
                 <v-layout fill-height>
@@ -34,13 +34,15 @@
           </v-card>
         </v-flex>
       </v-layout>
-      <v-flex class="addFriendIcon" v-if="showAddFriendIcon" @click="addNewFriend" xs6 sm4 >
-        <v-img class="rounded-card" v-if="friendsList.length === 0"
-          :src="require(`@/static/add_friend.png`)"
-          gradient="to top right, rgba(100,115,201,.33), rgba(25,32,72,.7)"
-        ></v-img>
-      </v-flex>
-      <add-friend :items="items" v-if="!showAddFriendIcon"></add-friend>
+      <v-layout justify-center>
+        <v-flex class="addFriendIcon" v-if="showAddFriendIcon" @click="addNewFriend" xs6 sm4 >
+          <v-img class="rounded-card" v-if="friendsData.length === 0"
+            :src="require(`@/static/addFriend.png`)"
+            gradient="to top right, rgba(100,115,201,.33), rgba(25,32,72,.7)"
+          ></v-img>
+        </v-flex>
+      </v-layout>
+      <!-- <add-friend :items="items" v-if="!showAddFriendIcon"></add-friend> -->
       <!-- <v-card v-if="friendsList === 0" ripple class="rounded-card"> -->
         
       <!-- </v-card> -->
@@ -52,6 +54,7 @@
 import router from "@/router";
 import Messages from "@/Messages";
 import addFriend from "../utilities/addNewFriend";
+import { mapState, mapMutations } from 'vuex';
 export default {
   name: "chatscreen",
   props: {
@@ -68,7 +71,7 @@ export default {
     this.socketMap.forEach(element => {
       Messages.on(element.event, element.function);
     });
-    Messages.send('getFriendsList', {username: this.userName}, this.sendCallback);
+    if (this.friendsData.length === 0) Messages.send('getFriendsList', {username: this.userName}, this.sendCallback);
     this.$validator.localize("en", this.dictionary);
   },
   destroyed() {},
@@ -94,8 +97,15 @@ export default {
       ],
     };
   },
-  computed: {},
+  computed: {
+    ...mapState('chat', {
+      friendsData: 'friendsData',
+    }),
+  },
   methods: {
+    ...mapMutations('chat', {
+      updateFriendsData: 'UPDATE_FRIENDS_DATA',
+    }),
     openChatWindow(evt, card) {
       console.log("222", this.$el, this.$el.className);
       // evt.stopPropagation();
@@ -129,10 +139,12 @@ export default {
         this.friendsList.push({
           title: user.name,
           src: user.profilePicture,
-          flex: 6,
         });
-        if (this.friendsList.length === 1) this.friendsList[0].flex = 12;
       })
+      if (this.friendsList.length) {
+        this.updateFriendsData({type: 'ADD', all: false, data: this.friendsList });
+        this.showAddFriendIcon = false;
+      } 
     },
     allUsersList(data) {
       console.log('all users', data);
@@ -140,6 +152,9 @@ export default {
       this.items.forEach((item)=>{item.active = false});
       this.showAddFriendIcon = false;
     },
+    flexVal(idx) {
+      return idx === 0 ? 12 : 6;
+    }
   },
   components: {
     addFriend,
@@ -152,7 +167,7 @@ export default {
   position: relative;
   width: 100%;
   .addFriendIcon {
-    margin-left: 25%;
+    // margin-left: 25%;
     margin-top: 40%;
   }
   .rounded-card{

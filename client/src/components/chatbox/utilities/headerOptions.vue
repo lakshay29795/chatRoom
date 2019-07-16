@@ -1,12 +1,7 @@
 <template>
   <v-container grid-list-xs auto class="headerOptionsContainer">
-    <v-layout row wrap justify-end xs4 mr-4>
+    <v-layout row wrap justify-end xs4>
       <v-flex xs4>
-        <v-list>
-          <v-list-tile v-for="(item, i) in items" :key="i" @click="selectOption">
-            <v-list-tile-title>{{ item.label }}</v-list-tile-title>
-          </v-list-tile>
-        </v-list>
       </v-flex>
     </v-layout>
   </v-container>
@@ -20,8 +15,10 @@ export default {
     }
   },
   methods: {
-    selectOption() {
-      console.log('selected option');
+    selectOption(evt, item) {
+      evt.stopPropagation();
+      console.log('selected option', item.action);
+      this.$emit('selected');
     }
   }
 }
@@ -32,5 +29,8 @@ export default {
     position: absolute;
     top: 0;
     z-index: 1;
+    .list-wrapper {
+      border-radius: 5px;
+    }
   }
 </style>

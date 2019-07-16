@@ -1,7 +1,6 @@
 <template>
 <div class="wrapper">
-  <header-bar :headerPage="headerType" @headerItems="setHeaderItems"></header-bar>
-  <header-options v-if="headerItems.length" :items="headerItems"></header-options>
+  <header-bar></header-bar>
   <router-view></router-view>
   <!-- <footer-bar :footer-page="'chat'"></footer-bar> -->
 </div>
@@ -10,13 +9,10 @@
 <script>
 import router from "@/router";
 import headerBar from "@/components/chatbox/pages/header";
-import headerOptions from "./utilities/headerOptions"
 import * as FormData from 'form-data'
 export default {
   data() {
     return {
-      headerType: 'main', // main, chat, settings
-      headerItems: [],
       toRoute: [
         `login`,
         `register`,
@@ -46,13 +42,9 @@ export default {
     registerPage() {
       // router.push({ path: 'register' });
     },
-    setHeaderItems(items) {
-      this.headerItems = items;
-    },
   },
   components: {
     headerBar,
-    headerOptions,
   },
 };
 </script>
@@ -65,6 +57,7 @@ export default {
   height: 100%;
   top: 0;
   left: 0;
+  background-color: rgba(163,220,254,0.2);
   .sliderWrapper {
     position: absolute;
     top: 0;

@@ -18,15 +18,15 @@ export const headerData = {
   'chatscreen': {
     items: [
       {
-        label: 'Option1',
+        label: 'New Group',
         action: 'option1',
       },
       {
-        label: 'Option2',
+        label: 'Search',
         action: 'option2',
       },
       {
-        label: 'Option3',
+        label: 'Settings',
         action: 'option3',
       },
     ],
